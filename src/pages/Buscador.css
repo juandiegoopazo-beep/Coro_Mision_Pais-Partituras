@@ -1,44 +1,61 @@
 .buscador {
   max-width: 640px;
   margin: 0 auto;
-  padding: 48px 24px 64px;
+  padding: 48px 20px 32px;
 }
 
 .buscador-header {
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 .buscador-eyebrow {
   font-size: 12px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--oro-tenue);
   margin: 0 0 4px;
+  font-weight: 600;
 }
 
 .buscador-titulo {
   font-family: var(--fuente-titulo);
   font-weight: 500;
-  font-size: clamp(32px, 6vw, 48px);
-  margin: 0 0 16px;
+  font-size: clamp(34px, 7vw, 50px);
+  margin: 0;
   color: var(--pergamino);
+  line-height: 1.05;
+}
+
+.buscador-input-wrap {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.buscador-input-icono {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--oro-tenue);
+  display: flex;
+  pointer-events: none;
 }
 
 .buscador-input {
   width: 100%;
-  padding: 14px 16px;
+  padding: 15px 16px 15px 46px;
   font-size: 16px;
   font-family: var(--fuente-cuerpo);
-  background: rgba(239, 230, 211, 0.05);
-  border: 1px solid rgba(201, 162, 75, 0.25);
-  border-radius: 4px;
+  background: var(--verde-carta);
+  border: 1px solid rgba(212, 175, 95, 0.18);
+  border-radius: var(--radio-m);
   color: var(--pergamino);
-  margin-bottom: 8px;
+  box-shadow: var(--sombra-carta);
 }
 
 .buscador-input::placeholder {
   color: var(--pergamino-tenue);
-  opacity: 0.6;
+  opacity: 0.65;
 }
 
 .buscador-input:focus {
@@ -46,61 +63,39 @@
   outline: none;
 }
 
+.buscador-vacio {
+  margin-top: 40px;
+  padding: 28px 22px;
+  text-align: center;
+  border: 1px dashed rgba(212, 175, 95, 0.22);
+  border-radius: var(--radio-l);
+}
+
+.buscador-vacio-titulo {
+  font-family: var(--fuente-titulo);
+  font-size: 19px;
+  color: var(--pergamino);
+  margin: 0 0 8px;
+}
+
+.buscador-vacio-texto {
+  font-size: 13.5px;
+  color: var(--pergamino-tenue);
+  line-height: 1.5;
+  margin: 0;
+  max-width: 380px;
+  margin-inline: auto;
+}
+
 .buscador-estado {
   color: var(--pergamino-tenue);
   font-size: 14px;
-  margin-top: 20px;
+  margin-top: 24px;
+  text-align: center;
 }
 
 .buscador-lista {
   list-style: none;
-  margin: 12px 0 0;
+  margin: 20px 0 0;
   padding: 0;
-}
-
-.buscador-fila {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 4px;
-  background: none;
-  border: none;
-  border-bottom: 1px solid rgba(239, 230, 211, 0.08);
-  cursor: pointer;
-  text-align: left;
-  transition: background 0.15s ease;
-}
-
-.buscador-fila:hover {
-  background: rgba(201, 162, 75, 0.06);
-}
-
-.buscador-fila-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.buscador-fila-titulo {
-  font-size: 16px;
-  color: var(--pergamino);
-}
-
-.buscador-fila-sub {
-  font-size: 12.5px;
-  color: var(--pergamino-tenue);
-  margin-top: 2px;
-}
-
-.buscador-badge {
-  flex-shrink: 0;
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--oro);
-  border: 1px solid var(--oro-tenue);
-  border-radius: 999px;
-  padding: 3px 9px;
 }

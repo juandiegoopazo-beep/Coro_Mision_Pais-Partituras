@@ -1,12 +1,24 @@
 :root {
   /* --- paleta: misal encuadernado, no "dark mode" generico --- */
-  --verde-tapa: #0f1f19;
-  --verde-tapa-2: #13261f;
-  --pergamino: #efe6d3;
-  --pergamino-tenue: #b9ad91;
-  --oro: #c9a24b;
-  --oro-tenue: #8a733a;
-  --rojo-marca: #8c3b2e;
+  --verde-tapa: #0c1815;
+  --verde-tapa-2: #142720;
+  --verde-carta: #1a2f27;
+  --verde-carta-hover: #203a30;
+  --pergamino: #f2ead9;
+  --pergamino-tenue: #a89f8a;
+  --oro: #d4af5f;
+  --oro-claro: #e8cb87;
+  --oro-tenue: #7a6435;
+  --oro-fondo: rgba(212, 175, 95, 0.12);
+  --rojo-marca: #c0594a;
+
+  --radio-s: 10px;
+  --radio-m: 16px;
+  --radio-l: 22px;
+  --sombra-carta: 0 4px 18px rgba(0, 0, 0, 0.28);
+  --sombra-flotante: 0 8px 28px rgba(0, 0, 0, 0.4);
+
+  --nav-alto: 72px;
 
   --fuente-titulo: 'Fraunces', Georgia, serif;
   --fuente-cuerpo: 'Inter', system-ui, sans-serif;
@@ -27,13 +39,15 @@ body {
   margin: 0;
   background: var(--verde-tapa);
   background-image: radial-gradient(
-    ellipse at top,
+    ellipse 900px 500px at 50% -10%,
     var(--verde-tapa-2) 0%,
-    var(--verde-tapa) 55%
+    var(--verde-tapa) 60%
   );
+  background-attachment: fixed;
   color: var(--pergamino);
   font-family: var(--fuente-cuerpo);
   -webkit-font-smoothing: antialiased;
+  padding-bottom: var(--nav-alto);
 }
 
 a {

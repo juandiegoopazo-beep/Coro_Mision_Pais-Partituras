@@ -1,6 +1,15 @@
 import { useMemo, useState } from 'react';
 import type { CancionConCancionero } from '../types/cancionero';
 import { transponerBloque } from '../lib/transposer';
+import {
+  esFavorito,
+  toggleFavorito,
+  estaEnRepertorio,
+  agregarARepertorio,
+  quitarDeRepertorio,
+} from '../lib/listasLocales';
+import { useFavoritosIds, useRepertorioIds } from '../hooks/useListasLocales';
+import { IconEstrella, IconMas } from './Icons';
 import './SongViewer.css';
 
 interface Props {
@@ -9,6 +18,10 @@ interface Props {
 
 export function SongViewer({ cancion }: Props) {
   const [semitonos, setSemitonos] = useState(0);
+  const favoritos = useFavoritosIds();
+  const repertorio = useRepertorioIds();
+  const favorito = favoritos.includes(cancion.id);
+  const enRepertorio = repertorio.includes(cancion.id);
 
   const secciones = useMemo(() => {
     if (!cancion.secciones) return [];
@@ -25,9 +38,31 @@ export function SongViewer({ cancion }: Props) {
   return (
     <article className="visor">
       <header className="visor-header">
-        {cancion.numero_original != null && (
-          <span className="visor-numero">Nº {cancion.numero_original}</span>
-        )}
+        <div className="visor-header-top">
+          {cancion.numero_original != null && (
+            <span className="visor-numero">Nº {cancion.numero_original}</span>
+          )}
+          <div className="visor-acciones">
+            <button
+              className={`accion-btn${favorito ? ' activo' : ''}`}
+              onClick={() => toggleFavorito(cancion.id)}
+              aria-label={favorito ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+              title={favorito ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+            >
+              <IconEstrella filled={favorito} />
+            </button>
+            <button
+              className={`accion-btn${enRepertorio ? ' activo' : ''}`}
+              onClick={() =>
+                enRepertorio ? quitarDeRepertorio(cancion.id) : agregarARepertorio(cancion.id)
+              }
+              aria-label={enRepertorio ? 'Quitar del repertorio' : 'Agregar al repertorio'}
+              title={enRepertorio ? 'Quitar del repertorio' : 'Agregar al repertorio'}
+            >
+              <IconMas activo={enRepertorio} />
+            </button>
+          </div>
+        </div>
         <h1 className="visor-titulo">{cancion.titulo}</h1>
         {(cancion.artista || cancion.autor_letra) && (
           <p className="visor-autor">{cancion.artista ?? cancion.autor_letra}</p>
