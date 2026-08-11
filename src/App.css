@@ -1,0 +1,24 @@
+.estado-centro {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 48px 24px;
+  color: var(--pergamino-tenue);
+}
+
+.estado-error {
+  color: var(--rojo-marca);
+}
+
+.volver-link {
+  display: block;
+  max-width: 640px;
+  margin: 24px auto 0;
+  padding: 0 24px;
+  font-size: 13px;
+  color: var(--oro);
+  text-decoration: none;
+}
+
+.volver-link:hover {
+  text-decoration: underline;
+}

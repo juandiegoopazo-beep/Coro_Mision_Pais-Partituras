@@ -1,0 +1,75 @@
+:root {
+  /* --- paleta: misal encuadernado, no "dark mode" generico --- */
+  --verde-tapa: #0f1f19;
+  --verde-tapa-2: #13261f;
+  --pergamino: #efe6d3;
+  --pergamino-tenue: #b9ad91;
+  --oro: #c9a24b;
+  --oro-tenue: #8a733a;
+  --rojo-marca: #8c3b2e;
+
+  --fuente-titulo: 'Fraunces', Georgia, serif;
+  --fuente-cuerpo: 'Inter', system-ui, sans-serif;
+  --fuente-acorde: 'JetBrains Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--verde-tapa);
+  background-image: radial-gradient(
+    ellipse at top,
+    var(--verde-tapa-2) 0%,
+    var(--verde-tapa) 55%
+  );
+  color: var(--pergamino);
+  font-family: var(--fuente-cuerpo);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--oro);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--oro-tenue);
+  color: var(--pergamino);
+}
+
+.filo-oro {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--oro-tenue) 20%,
+    var(--oro) 50%,
+    var(--oro-tenue) 80%,
+    transparent
+  );
+  border: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

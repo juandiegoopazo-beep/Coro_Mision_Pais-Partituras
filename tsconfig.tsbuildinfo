@@ -1,0 +1,1 @@
+{"root":["./src/App.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/SongViewer.tsx","./src/hooks/useBuscadorCanciones.ts","./src/hooks/useCancionDetail.ts","./src/lib/supabase.ts","./src/lib/transposer.ts","./src/pages/Buscador.tsx","./src/pages/CancionDetail.tsx","./src/types/cancionero.ts"],"version":"5.9.3"}

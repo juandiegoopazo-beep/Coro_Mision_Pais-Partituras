@@ -1,0 +1,151 @@
+.visor {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 48px 24px 96px;
+}
+
+.visor-header {
+  margin-bottom: 24px;
+}
+
+.visor-numero {
+  display: inline-block;
+  font-family: var(--fuente-acorde);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--oro-tenue);
+  margin-bottom: 8px;
+}
+
+.visor-titulo {
+  font-family: var(--fuente-titulo);
+  font-weight: 500;
+  font-size: clamp(28px, 5vw, 40px);
+  line-height: 1.15;
+  margin: 0 0 8px;
+  color: var(--pergamino);
+}
+
+.visor-autor {
+  font-size: 15px;
+  color: var(--pergamino-tenue);
+  margin: 0;
+}
+
+.visor-cancionero {
+  font-size: 13px;
+  color: var(--oro-tenue);
+  margin: 4px 0 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.transportador {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0 8px;
+}
+
+.transportador-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--oro-tenue);
+  background: transparent;
+  color: var(--pergamino);
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.transportador-btn:hover {
+  background: rgba(201, 162, 75, 0.12);
+  border-color: var(--oro);
+}
+
+.transportador-label {
+  font-family: var(--fuente-acorde);
+  font-size: 13px;
+  color: var(--pergamino-tenue);
+  min-width: 60px;
+}
+
+.transportador-reset {
+  background: none;
+  border: none;
+  color: var(--oro);
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.visor-aviso {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--pergamino-tenue);
+  opacity: 0.75;
+  margin: 8px 0 20px;
+}
+
+.visor-secciones {
+  margin-top: 16px;
+}
+
+.seccion {
+  margin-bottom: 22px;
+}
+
+.seccion-acordes {
+  font-family: var(--fuente-acorde);
+  font-size: 13.5px;
+  color: var(--oro);
+  margin: 0 0 6px;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+.seccion-letra {
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--pergamino);
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.pdf-fallback {
+  margin-top: 32px;
+  padding: 20px;
+  background: rgba(239, 230, 211, 0.04);
+  border: 1px solid rgba(201, 162, 75, 0.2);
+  border-radius: 4px;
+}
+
+.pdf-fallback p {
+  color: var(--pergamino-tenue);
+  font-size: 14px;
+  margin: 0 0 12px;
+}
+
+.pdf-fallback-pagina {
+  font-size: 13px !important;
+  color: var(--oro-tenue) !important;
+}
+
+.pdf-btn {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 12px 20px;
+  background: var(--oro);
+  color: var(--verde-tapa);
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 3px;
+  text-decoration: none;
+  transition: filter 0.15s ease;
+}
+
+.pdf-btn:hover {
+  filter: brightness(1.1);
+}
