@@ -1,4 +1,4 @@
-export type FormatoCancion = 'linea' | 'estrofa' | 'pdf';
+export type FormatoCancion = 'linea' | 'estrofa' | 'partitura' | 'pdf';
 
 export interface Cancionero {
   id: string;
@@ -35,6 +35,8 @@ export interface Cancion {
   autor_musica: string | null;
   formato: FormatoCancion;
   secciones: SeccionCancion[] | null;
+  partitura_pdf_url: string | null;
+  partitura_fuente: string | null;
 }
 
 export interface CancionConCancionero extends Cancion {

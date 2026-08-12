@@ -53,7 +53,13 @@ export default function Buscador() {
               id={item.id}
               titulo={item.titulo}
               subtitulo={item.cancionero?.titulo}
-              etiqueta={item.formato !== 'pdf' ? 'letra' : null}
+              etiqueta={
+                item.formato === 'partitura'
+                  ? 'partitura'
+                  : item.formato !== 'pdf'
+                  ? 'letra'
+                  : null
+              }
             />
           </li>
         ))}

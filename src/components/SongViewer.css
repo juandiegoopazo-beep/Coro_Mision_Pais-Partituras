@@ -151,6 +151,59 @@
   white-space: pre-wrap;
 }
 
+.visor-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  background: var(--verde-carta);
+  border-radius: 999px;
+  padding: 4px;
+  width: fit-content;
+}
+
+.visor-tab {
+  border: none;
+  background: none;
+  color: var(--pergamino-tenue);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.visor-tab.activo {
+  background: var(--oro);
+  color: var(--verde-tapa);
+}
+
+.partitura-viewer {
+  margin-top: 8px;
+}
+
+.partitura-embed {
+  border-radius: var(--radio-m);
+  overflow: hidden;
+  border: 1px solid rgba(212, 175, 95, 0.15);
+  box-shadow: var(--sombra-carta);
+  background: #fff;
+  height: 75vh;
+  min-height: 420px;
+}
+
+.partitura-embed iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.partitura-btn-externo {
+  display: block;
+  margin-top: 12px;
+  text-align: center;
+}
+
 .pdf-fallback {
   margin-top: 32px;
   padding: 20px;
