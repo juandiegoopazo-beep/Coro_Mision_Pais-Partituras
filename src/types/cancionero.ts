@@ -39,11 +39,20 @@ export interface Cancion {
   partitura_fuente: string | null;
 }
 
+export interface PartituraArchivo {
+  id: number;
+  voz: string;
+  pdf_url: string;
+  fuente: string | null;
+  orden: number;
+}
+
 export interface CancionConCancionero extends Cancion {
   cancionero: Pick<
     Cancionero,
     'id' | 'titulo' | 'pdf_url' | 'hoja_offset' | 'autor'
   > | null;
+  partitura_archivos: PartituraArchivo[];
 }
 
 export interface ResultadoBusqueda {

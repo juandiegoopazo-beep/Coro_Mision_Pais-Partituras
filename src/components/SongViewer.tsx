@@ -29,7 +29,7 @@ export function SongViewer({ cancion }: Props) {
     (cancion.formato === 'linea' || cancion.formato === 'estrofa' || cancion.formato === 'partitura') &&
     !!cancion.secciones &&
     cancion.secciones.length > 0;
-  const tienePartitura = !!cancion.partitura_pdf_url;
+  const tienePartitura = (cancion.partitura_archivos?.length ?? 0) > 0;
 
   const [vista, setVista] = useState<Vista>(tienePartitura && !tieneLetra ? 'partitura' : 'letra');
 
@@ -169,18 +169,34 @@ function SeccionInterlineada({ chords, lyric }: { chords: string; lyric: string 
 }
 
 function PartituraViewer({ cancion }: Props) {
-  const url = cancion.partitura_pdf_url!;
-  const esPastoralUC = cancion.partitura_fuente === 'pastoral_uc';
+  const archivos = [...(cancion.partitura_archivos ?? [])].sort((a, b) => a.orden - b.orden);
+  const [seleccion, setSeleccion] = useState(archivos[0]?.id);
+  const actual = archivos.find((a) => a.id === seleccion) ?? archivos[0];
+
+  if (!actual) return null;
 
   return (
     <div className="partitura-viewer">
-      {esPastoralUC && (
-        <p className="visor-aviso">Arreglo de Pastoral UC</p>
+      {archivos.length > 1 && (
+        <div className="voz-chips">
+          {archivos.map((a) => (
+            <button
+              key={a.id}
+              className={`voz-chip${a.id === actual.id ? ' activo' : ''}`}
+              onClick={() => setSeleccion(a.id)}
+            >
+              {a.voz}
+            </button>
+          ))}
+        </div>
       )}
+
+      {actual.fuente === 'pastoral_uc' && <p className="visor-aviso">Arreglo de Pastoral UC</p>}
+
       <div className="partitura-embed">
-        <iframe src={url} title={`Partitura de ${cancion.titulo}`} loading="lazy" />
+        <iframe src={actual.pdf_url} title={`Partitura de ${cancion.titulo} — ${actual.voz}`} loading="lazy" />
       </div>
-      <a className="pdf-btn partitura-btn-externo" href={url} target="_blank" rel="noreferrer">
+      <a className="pdf-btn partitura-btn-externo" href={actual.pdf_url} target="_blank" rel="noreferrer">
         Abrir en una pestaña nueva
       </a>
     </div>

@@ -20,7 +20,10 @@ export function useCancionDetail(id: number | null) {
 
     supabase
       .from('canciones')
-      .select('*, cancionero:cancioneros(id, titulo, pdf_url, hoja_offset, autor)')
+      .select(
+        `*, cancionero:cancioneros(id, titulo, pdf_url, hoja_offset, autor),
+         partitura_archivos(id, voz, pdf_url, fuente, orden)`
+      )
       .eq('id', id)
       .single()
       .then(({ data, error: err }) => {
