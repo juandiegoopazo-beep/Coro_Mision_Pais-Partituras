@@ -204,6 +204,31 @@
   text-align: center;
 }
 
+.seccion-interlineada {
+  display: flex;
+  flex-direction: column;
+}
+
+.linea-par {
+  margin-bottom: 2px;
+}
+
+.linea-acorde {
+  font-family: var(--fuente-acorde);
+  font-size: 13px;
+  color: var(--oro);
+  line-height: 1.3;
+  white-space: pre-wrap;
+}
+
+.linea-letra {
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--pergamino);
+  margin-bottom: 6px;
+  white-space: pre-wrap;
+}
+
 .pdf-fallback {
   margin-top: 32px;
   padding: 20px;

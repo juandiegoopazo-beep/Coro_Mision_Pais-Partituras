@@ -127,14 +127,13 @@ export function SongViewer({ cancion }: Props) {
           </div>
 
           {cancion.formato === 'estrofa' && (
-            <p className="visor-aviso">Acordes por estrofa (no alineados palabra por palabra)</p>
+            <p className="visor-aviso">Acordes por línea (no siempre alineados por sílaba exacta)</p>
           )}
 
           <div className="visor-secciones">
             {secciones.map((seccion, i) => (
               <div className="seccion" key={i}>
-                {seccion.chords && <pre className="seccion-acordes">{seccion.chords}</pre>}
-                {seccion.lyric && <p className="seccion-letra">{seccion.lyric}</p>}
+                <SeccionInterlineada chords={seccion.chords} lyric={seccion.lyric} />
               </div>
             ))}
           </div>
@@ -147,6 +146,25 @@ export function SongViewer({ cancion }: Props) {
 
       {sinContenidoEstructurado && <PdfFallback cancion={cancion} />}
     </article>
+  );
+}
+
+function SeccionInterlineada({ chords, lyric }: { chords: string; lyric: string }) {
+  const lineasAcordes = chords ? chords.split('\n') : [];
+  const lineasLetra = lyric ? lyric.split('\n') : [];
+  const total = Math.max(lineasAcordes.length, lineasLetra.length);
+
+  if (total === 0) return null;
+
+  return (
+    <div className="seccion-interlineada">
+      {Array.from({ length: total }).map((_, i) => (
+        <div className="linea-par" key={i}>
+          {lineasAcordes[i] && <div className="linea-acorde">{lineasAcordes[i]}</div>}
+          {lineasLetra[i] && <div className="linea-letra">{lineasLetra[i]}</div>}
+        </div>
+      ))}
+    </div>
   );
 }
 
