@@ -4,6 +4,7 @@ import Buscador from './pages/Buscador';
 import Favoritos from './pages/Favoritos';
 import Repertorio from './pages/Repertorio';
 import CancionDetail from './pages/CancionDetail';
+import AlbumDetail from './pages/AlbumDetail';
 import './App.css';
 
 export default function App() {
@@ -14,6 +15,7 @@ export default function App() {
         <Route path="/favoritos" element={<Favoritos />} />
         <Route path="/repertorio" element={<Repertorio />} />
         <Route path="/cancion/:id" element={<CancionDetail />} />
+        <Route path="/album/:id" element={<AlbumDetail />} />
       </Routes>
       <BottomNav />
     </>

@@ -1,21 +1,27 @@
 import { useState } from 'react';
 import { useBuscadorCanciones } from '../hooks/useBuscadorCanciones';
+import { useMomentosConteo } from '../hooks/useMomentosConteo';
+import { useCancionesPorMomento } from '../hooks/useCancionesPorMomento';
+import { useAlbumes } from '../hooks/useAlbumes';
 import { FilaCancion } from '../components/FilaCancion';
+import { FiltroChips } from '../components/FiltroChips';
+import { AlbumCard } from '../components/AlbumCard';
 import { IconBuscarChico } from '../components/Icons';
 import './Buscador.css';
 
 export default function Buscador() {
   const [query, setQuery] = useState('');
-  const { resultados, loading } = useBuscadorCanciones(query);
-  const sinBuscar = query.trim().length < 2;
+  const [momento, setMomento] = useState<string | null>(null);
+
+  const { resultados: resultadosBusqueda, loading: buscando } = useBuscadorCanciones(query);
+  const { momentos } = useMomentosConteo();
+  const { resultados: resultadosMomento, loading: cargandoMomento } = useCancionesPorMomento(momento);
+  const { albumes, totalCancioneros, totalCanciones, loading: cargandoAlbumes } = useAlbumes();
+
+  const hayBusqueda = query.trim().length >= 2;
 
   return (
     <div className="buscador">
-      <header className="buscador-header">
-        <p className="buscador-eyebrow">Misión País</p>
-        <h1 className="buscador-titulo">Cancionero</h1>
-      </header>
-
       <div className="buscador-input-wrap">
         <span className="buscador-input-icono">
           <IconBuscarChico />
@@ -23,47 +29,87 @@ export default function Buscador() {
         <input
           className="buscador-input"
           type="search"
-          placeholder="Buscar canción..."
+          placeholder="Buscar canción o cancionero..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          autoFocus
         />
       </div>
 
-      {sinBuscar && (
-        <div className="buscador-vacio">
-          <p className="buscador-vacio-titulo">Encuentra cualquier canción</p>
-          <p className="buscador-vacio-texto">
-            Escribe el título o un pedazo de la letra para empezar a buscar entre todos los
-            cancioneros de Misión País.
-          </p>
-        </div>
+      <FiltroChips
+        momentos={momentos}
+        totalCanciones={totalCanciones}
+        seleccionado={momento}
+        onSeleccionar={(m) => {
+          setMomento(m);
+          setQuery('');
+        }}
+      />
+
+      {hayBusqueda ? (
+        <>
+          {buscando && <p className="buscador-estado">Buscando…</p>}
+          {!buscando && resultadosBusqueda.length === 0 && (
+            <p className="buscador-estado">Sin resultados para "{query}".</p>
+          )}
+          <ul className="buscador-lista">
+            {resultadosBusqueda.map((item) => (
+              <li key={item.id}>
+                <FilaCancion
+                  id={item.id}
+                  titulo={item.titulo}
+                  subtitulo={item.cancionero?.titulo}
+                  etiqueta={
+                    item.formato === 'partitura'
+                      ? 'partitura'
+                      : item.formato !== 'pdf'
+                      ? 'letra'
+                      : null
+                  }
+                />
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : momento ? (
+        <>
+          {cargandoMomento && <p className="buscador-estado">Cargando…</p>}
+          <ul className="buscador-lista">
+            {resultadosMomento.map((item) => (
+              <li key={item.id}>
+                <FilaCancion
+                  id={item.id}
+                  titulo={item.titulo}
+                  subtitulo={item.cancionero?.titulo}
+                  etiqueta={
+                    item.formato === 'partitura'
+                      ? 'partitura'
+                      : item.formato !== 'pdf'
+                      ? 'letra'
+                      : null
+                  }
+                />
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : (
+        <>
+          <header className="buscador-header">
+            <h1 className="buscador-titulo">Coro Misión País</h1>
+            <p className="buscador-eyebrow">
+              {totalCancioneros} cancioneros · {totalCanciones} canciones
+            </p>
+          </header>
+
+          <p className="discos-label">Discos</p>
+          {cargandoAlbumes && <p className="buscador-estado">Cargando…</p>}
+          <div className="albumes-grid">
+            {albumes.map((album) => (
+              <AlbumCard key={album.id} album={album} />
+            ))}
+          </div>
+        </>
       )}
-
-      {loading && <p className="buscador-estado">Buscando…</p>}
-
-      {!loading && !sinBuscar && resultados.length === 0 && (
-        <p className="buscador-estado">Sin resultados para "{query}".</p>
-      )}
-
-      <ul className="buscador-lista">
-        {resultados.map((item) => (
-          <li key={item.id}>
-            <FilaCancion
-              id={item.id}
-              titulo={item.titulo}
-              subtitulo={item.cancionero?.titulo}
-              etiqueta={
-                item.formato === 'partitura'
-                  ? 'partitura'
-                  : item.formato !== 'pdf'
-                  ? 'letra'
-                  : null
-              }
-            />
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }

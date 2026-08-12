@@ -1,28 +1,42 @@
 :root {
-  /* --- paleta: misal encuadernado, no "dark mode" generico --- */
-  --verde-tapa: #0c1815;
-  --verde-tapa-2: #142720;
-  --verde-carta: #1a2f27;
-  --verde-carta-hover: #203a30;
-  --pergamino: #f2ead9;
-  --pergamino-tenue: #a89f8a;
-  --oro: #d4af5f;
-  --oro-claro: #e8cb87;
-  --oro-tenue: #7a6435;
-  --oro-fondo: rgba(212, 175, 95, 0.12);
-  --rojo-marca: #c0594a;
+  /* --- tema claro: papel/discografía --- */
+  --fondo: #f7f5f1;
+  --tarjeta: #ffffff;
+  --tarjeta-borde: #eae7e0;
+  --tarjeta-hover: #f2f0ea;
+  --texto: #17171a;
+  --texto-tenue: #8a8a92;
+  --texto-suave: #b5b3ac;
+  --negro: #17171a;
+  --acorde-color: #a6762f;
+  --acorde-fondo: rgba(166, 118, 47, 0.08);
+  --rojo-marca: #c0392b;
+  --dato: #6a6fae;
 
   --radio-s: 10px;
   --radio-m: 16px;
   --radio-l: 22px;
-  --sombra-carta: 0 4px 18px rgba(0, 0, 0, 0.28);
-  --sombra-flotante: 0 8px 28px rgba(0, 0, 0, 0.4);
+  --sombra-carta: 0 1px 2px rgba(20, 20, 25, 0.04), 0 6px 20px rgba(20, 20, 25, 0.06);
+  --sombra-flotante: 0 10px 30px rgba(20, 20, 25, 0.14);
 
   --nav-alto: 72px;
 
   --fuente-titulo: 'Fraunces', Georgia, serif;
   --fuente-cuerpo: 'Inter', system-ui, sans-serif;
   --fuente-acorde: 'JetBrains Mono', monospace;
+
+  /* alias de compatibilidad para componentes con nombres del tema anterior */
+  --verde-tapa: var(--fondo);
+  --verde-tapa-2: var(--fondo);
+  --verde-carta: var(--tarjeta);
+  --verde-carta-hover: var(--tarjeta-hover);
+  --pergamino: var(--texto);
+  --pergamino-tenue: var(--texto-tenue);
+  --oro: var(--negro);
+  --oro-claro: #3a3a40;
+  --oro-tenue: var(--tarjeta-borde);
+  --oro-fondo: rgba(23, 23, 26, 0.06);
+  --borde: var(--tarjeta-borde);
 }
 
 * {
@@ -37,14 +51,8 @@ body,
 
 body {
   margin: 0;
-  background: var(--verde-tapa);
-  background-image: radial-gradient(
-    ellipse 900px 500px at 50% -10%,
-    var(--verde-tapa-2) 0%,
-    var(--verde-tapa) 60%
-  );
-  background-attachment: fixed;
-  color: var(--pergamino);
+  background: var(--fondo);
+  color: var(--texto);
   font-family: var(--fuente-cuerpo);
   -webkit-font-smoothing: antialiased;
   padding-bottom: var(--nav-alto);
@@ -59,25 +67,18 @@ button {
 }
 
 :focus-visible {
-  outline: 2px solid var(--oro);
+  outline: 2px solid var(--negro);
   outline-offset: 2px;
 }
 
 ::selection {
-  background: var(--oro-tenue);
-  color: var(--pergamino);
+  background: rgba(23, 23, 26, 0.14);
+  color: var(--texto);
 }
 
 .filo-oro {
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--oro-tenue) 20%,
-    var(--oro) 50%,
-    var(--oro-tenue) 80%,
-    transparent
-  );
+  background: var(--tarjeta-borde);
   border: none;
 }
 

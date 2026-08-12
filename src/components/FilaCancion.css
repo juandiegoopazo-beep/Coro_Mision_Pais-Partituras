@@ -6,7 +6,7 @@
   border-radius: var(--radio-m);
   margin-bottom: 10px;
   box-shadow: var(--sombra-carta);
-  border: 1px solid rgba(212, 175, 95, 0.08);
+  border: 1px solid var(--tarjeta-borde);
   overflow: hidden;
 }
 
@@ -74,7 +74,7 @@
 .tarjeta-cancion-acciones {
   display: flex;
   flex-direction: column;
-  border-left: 1px solid rgba(212, 175, 95, 0.1);
+  border-left: 1px solid var(--tarjeta-borde);
 }
 
 .accion-btn {
@@ -100,5 +100,5 @@
 }
 
 .accion-btn + .accion-btn {
-  border-top: 1px solid rgba(212, 175, 95, 0.1);
+  border-top: 1px solid var(--tarjeta-borde);
 }

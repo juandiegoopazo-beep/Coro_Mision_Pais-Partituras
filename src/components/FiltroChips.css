@@ -1,0 +1,49 @@
+.filtro-chips-scroll {
+  overflow-x: auto;
+  margin: 0 -20px;
+  padding: 0 20px;
+  scrollbar-width: none;
+}
+
+.filtro-chips-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.filtro-chips {
+  display: flex;
+  gap: 8px;
+  padding-bottom: 4px;
+  width: max-content;
+}
+
+.filtro-chip {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--tarjeta-borde);
+  background: var(--tarjeta);
+  color: var(--texto);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.filtro-chip:hover {
+  border-color: var(--texto-suave);
+}
+
+.filtro-chip.activo {
+  background: var(--negro);
+  border-color: var(--negro);
+  color: #fff;
+}
+
+.filtro-chip-num {
+  font-size: 12px;
+  opacity: 0.6;
+}
