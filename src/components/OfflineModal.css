@@ -1,0 +1,29 @@
+.offline-desc {
+  font-size: 13.5px;
+  color: var(--texto-tenue);
+  line-height: 1.5;
+  margin: 0 0 16px;
+}
+
+.offline-aviso {
+  font-size: 13px;
+  color: var(--texto-tenue);
+  margin: 0 0 10px;
+}
+
+.offline-aviso-rojo {
+  color: var(--rojo-marca);
+}
+
+.offline-btn-descargar {
+  width: 100%;
+  text-align: center;
+  border: none;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.offline-btn-descargar:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

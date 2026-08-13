@@ -6,12 +6,14 @@ import { useAlbumes } from '../hooks/useAlbumes';
 import { FilaCancion } from '../components/FilaCancion';
 import { FiltroChips } from '../components/FiltroChips';
 import { AlbumCard } from '../components/AlbumCard';
-import { IconBuscarChico } from '../components/Icons';
+import { OfflineModal } from '../components/OfflineModal';
+import { IconBuscarChico, IconDescargar } from '../components/Icons';
 import './Buscador.css';
 
 export default function Buscador() {
   const [query, setQuery] = useState('');
   const [momento, setMomento] = useState<string | null>(null);
+  const [mostrarOffline, setMostrarOffline] = useState(false);
 
   const { resultados: resultadosBusqueda, loading: buscando } = useBuscadorCanciones(query);
   const { momentos } = useMomentosConteo();
@@ -33,6 +35,14 @@ export default function Buscador() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
+        <button
+          className="buscador-offline-btn"
+          onClick={() => setMostrarOffline(true)}
+          aria-label="Usar sin conexión"
+          title="Usar sin conexión"
+        >
+          <IconDescargar />
+        </button>
       </div>
 
       <FiltroChips
@@ -110,6 +120,8 @@ export default function Buscador() {
           </div>
         </>
       )}
+
+      {mostrarOffline && <OfflineModal onCerrar={() => setMostrarOffline(false)} />}
     </div>
   );
 }

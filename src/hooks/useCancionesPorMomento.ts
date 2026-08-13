@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { cancionesPorMomentoOffline } from '../lib/offlineQueries';
 import type { ResultadoBusqueda } from '../types/cancionero';
 
 export function useCancionesPorMomento(momento: string | null) {
@@ -13,16 +14,35 @@ export function useCancionesPorMomento(momento: string | null) {
     }
     let cancelado = false;
     setLoading(true);
-    supabase
-      .from('canciones')
-      .select('id, titulo, formato, momento_liturgico, cancionero_id, cancionero:cancioneros(titulo)')
-      .eq('momento_liturgico', momento)
-      .order('titulo')
-      .then(({ data }) => {
-        if (cancelado) return;
-        setResultados((data ?? []) as unknown as ResultadoBusqueda[]);
-        setLoading(false);
-      });
+
+    async function cargar() {
+      if (!navigator.onLine) {
+        const local = await cancionesPorMomentoOffline(momento!);
+        if (!cancelado) {
+          setResultados(local);
+          setLoading(false);
+        }
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('canciones')
+        .select('id, titulo, formato, momento_liturgico, cancionero_id, cancionero:cancioneros(titulo)')
+        .eq('momento_liturgico', momento)
+        .order('titulo');
+
+      if (cancelado) return;
+
+      if (error || !data) {
+        const local = await cancionesPorMomentoOffline(momento!);
+        setResultados(local);
+      } else {
+        setResultados(data as unknown as ResultadoBusqueda[]);
+      }
+      setLoading(false);
+    }
+
+    cargar();
     return () => {
       cancelado = true;
     };

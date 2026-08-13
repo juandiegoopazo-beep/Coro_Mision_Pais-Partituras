@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { albumesOffline } from '../lib/offlineQueries';
 
 export interface AlbumConConteo {
   id: string;
@@ -21,6 +22,17 @@ export function useAlbumes() {
     let cancelado = false;
 
     async function cargar() {
+      if (!navigator.onLine) {
+        const local = await albumesOffline();
+        if (!cancelado) {
+          setAlbumes(local as AlbumConConteo[]);
+          setTotalCancioneros(local.length);
+          setTotalCanciones(local.reduce((acc, a) => acc + a.conteo_real, 0));
+          setLoading(false);
+        }
+        return;
+      }
+
       const [cancionerosRes, cancionesRes] = await Promise.all([
         supabase
           .from('cancioneros')
@@ -30,6 +42,15 @@ export function useAlbumes() {
       ]);
 
       if (cancelado) return;
+
+      if (cancionerosRes.error) {
+        const local = await albumesOffline();
+        setAlbumes(local as AlbumConConteo[]);
+        setTotalCancioneros(local.length);
+        setTotalCanciones(local.reduce((acc, a) => acc + a.conteo_real, 0));
+        setLoading(false);
+        return;
+      }
 
       const conteoPorAlbum = new Map<string, number>();
       for (const row of (cancionesRes.data ?? []) as { cancionero_id: string | null }[]) {

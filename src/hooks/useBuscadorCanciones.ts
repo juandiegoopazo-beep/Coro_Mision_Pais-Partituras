@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { buscarOffline } from '../lib/offlineQueries';
 import type { ResultadoBusqueda } from '../types/cancionero';
 
 export function useBuscadorCanciones(query: string) {
@@ -23,23 +24,39 @@ export function useBuscadorCanciones(query: string) {
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '');
 
-    const timeout = setTimeout(() => {
-      supabase
+    const timeout = setTimeout(async () => {
+      if (!navigator.onLine) {
+        const local = await buscarOffline(texto);
+        if (!cancelado) {
+          setResultados(local);
+          setLoading(false);
+        }
+        return;
+      }
+
+      const { data, error: err } = await supabase
         .from('canciones')
         .select('id, titulo, formato, momento_liturgico, cancionero_id, cancionero:cancioneros(titulo)')
         .or(`texto_busqueda.ilike.%${normalizado}%,titulo.ilike.%${texto}%`)
         .order('titulo')
-        .limit(50)
-        .then(({ data, error: err }) => {
-          if (cancelado) return;
-          if (err) {
-            setError(err.message);
-            setResultados([]);
-          } else {
-            setResultados((data ?? []) as unknown as ResultadoBusqueda[]);
-          }
-          setLoading(false);
-        });
+        .limit(50);
+
+      if (cancelado) return;
+
+      if (err) {
+        // sin red o falló la consulta: intenta con la copia local
+        const local = await buscarOffline(texto);
+        if (local.length > 0) {
+          setResultados(local);
+          setError(null);
+        } else {
+          setError(err.message);
+          setResultados([]);
+        }
+      } else {
+        setResultados((data ?? []) as unknown as ResultadoBusqueda[]);
+      }
+      setLoading(false);
     }, 250);
 
     return () => {
