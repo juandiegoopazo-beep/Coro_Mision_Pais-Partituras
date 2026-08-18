@@ -2,8 +2,11 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import {
   getFavoritos,
-  getRepertorio,
+  getRepertorios,
+  getRepertorioActivoId,
+  getOCrearRepertorioActivo,
   suscribirCambiosListas,
+  type Repertorio,
 } from '../lib/listasLocales';
 
 export function useFavoritosIds(): number[] {
@@ -12,9 +15,27 @@ export function useFavoritosIds(): number[] {
   return ids;
 }
 
+/** Todos los repertorios guardados, reactivos a cambios. */
+export function useRepertorios(): Repertorio[] {
+  const [lista, setLista] = useState<Repertorio[]>(() => getRepertorios());
+  useEffect(() => suscribirCambiosListas(() => setLista(getRepertorios())), []);
+  return lista;
+}
+
+/** El id del repertorio activo (el que usa el botón + rápido). */
+export function useRepertorioActivoId(): string | null {
+  const [id, setId] = useState<string | null>(() => getRepertorioActivoId());
+  useEffect(() => suscribirCambiosListas(() => setId(getRepertorioActivoId())), []);
+  return id;
+}
+
+/** Ids de canción del repertorio activo (crea uno por defecto si no hay ninguno). */
 export function useRepertorioIds(): number[] {
-  const [ids, setIds] = useState<number[]>(() => getRepertorio());
-  useEffect(() => suscribirCambiosListas(() => setIds(getRepertorio())), []);
+  const [ids, setIds] = useState<number[]>(() => getOCrearRepertorioActivo().cancionIds);
+  useEffect(
+    () => suscribirCambiosListas(() => setIds(getOCrearRepertorioActivo().cancionIds)),
+    []
+  );
   return ids;
 }
 

@@ -7,6 +7,7 @@ import { FilaCancion } from '../components/FilaCancion';
 import { FiltroChips } from '../components/FiltroChips';
 import { AlbumCard } from '../components/AlbumCard';
 import { OfflineModal } from '../components/OfflineModal';
+import { SkeletonListaFilas, SkeletonGrillaAlbumes } from '../components/Skeleton';
 import { IconBuscarChico, IconDescargar } from '../components/Icons';
 import './Buscador.css';
 
@@ -57,7 +58,7 @@ export default function Buscador() {
 
       {hayBusqueda ? (
         <>
-          {buscando && <p className="buscador-estado">Buscando…</p>}
+          {buscando && <SkeletonListaFilas cantidad={5} />}
           {!buscando && resultadosBusqueda.length === 0 && (
             <p className="buscador-estado">Sin resultados para "{query}".</p>
           )}
@@ -82,7 +83,7 @@ export default function Buscador() {
         </>
       ) : momento ? (
         <>
-          {cargandoMomento && <p className="buscador-estado">Cargando…</p>}
+          {cargandoMomento && <SkeletonListaFilas cantidad={5} />}
           <ul className="buscador-lista">
             {resultadosMomento.map((item) => (
               <li key={item.id}>
@@ -112,7 +113,7 @@ export default function Buscador() {
           </header>
 
           <p className="discos-label">Discos</p>
-          {cargandoAlbumes && <p className="buscador-estado">Cargando…</p>}
+          {cargandoAlbumes && <SkeletonGrillaAlbumes />}
           <div className="albumes-grid">
             {albumes.map((album) => (
               <AlbumCard key={album.id} album={album} />

@@ -1,0 +1,70 @@
+@keyframes skeleton-pulso {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.skeleton-bloque {
+  background: var(--tarjeta-borde);
+  border-radius: 6px;
+  animation: skeleton-pulso 1.3s ease-in-out infinite;
+}
+
+.skeleton-fila {
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--tarjeta-borde);
+}
+
+.skeleton-titulo {
+  height: 15px;
+  width: 62%;
+  margin-bottom: 8px;
+}
+
+.skeleton-sub {
+  height: 11px;
+  width: 38%;
+}
+
+.skeleton-grilla {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .skeleton-grilla {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.skeleton-album {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeleton-caratula {
+  aspect-ratio: 1;
+  width: 100%;
+  border-radius: var(--radio-m);
+}
+
+.skeleton-album-titulo {
+  height: 13px;
+  width: 80%;
+}
+
+.skeleton-album-sub {
+  height: 10px;
+  width: 45%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-bloque {
+    animation: none;
+  }
+}

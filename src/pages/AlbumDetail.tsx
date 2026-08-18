@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useAlbumDetalle } from '../hooks/useAlbumDetalle';
 import { FilaCancion } from '../components/FilaCancion';
+import { SkeletonListaFilas } from '../components/Skeleton';
 import './AlbumDetail.css';
 
 export default function AlbumDetail() {
@@ -8,7 +9,11 @@ export default function AlbumDetail() {
   const { album, canciones, loading } = useAlbumDetalle(id);
 
   if (loading) {
-    return <p className="estado-centro">Cargando…</p>;
+    return (
+      <div className="album-detail">
+        <SkeletonListaFilas cantidad={8} />
+      </div>
+    );
   }
 
   if (!album) {

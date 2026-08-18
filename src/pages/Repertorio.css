@@ -1,0 +1,92 @@
+.repertorio-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.repertorio-chip {
+  border: 1px solid var(--tarjeta-borde);
+  background: var(--tarjeta);
+  color: var(--texto-tenue);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.repertorio-chip:hover {
+  border-color: var(--negro);
+}
+
+.repertorio-chip.activo {
+  background: var(--negro);
+  color: #fff;
+  border-color: var(--negro);
+}
+
+.repertorio-chip-num {
+  opacity: 0.6;
+  font-size: 11px;
+}
+
+.repertorio-chip-nuevo {
+  border-style: dashed;
+}
+
+.repertorio-nuevo-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.repertorio-nuevo-input {
+  flex: 1;
+  min-width: 180px;
+  padding: 10px 14px;
+  border-radius: var(--radio-s);
+  border: 1px solid var(--tarjeta-borde);
+  background: var(--tarjeta);
+  color: var(--texto);
+  font-size: 14px;
+}
+
+.repertorio-nuevo-input:focus {
+  outline: none;
+  border-color: var(--negro);
+}
+
+.repertorio-titulo-activo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.repertorio-titulo-activo h2 {
+  font-family: var(--fuente-titulo);
+  font-size: 20px;
+  margin: 0;
+  flex: 1;
+}
+
+.repertorio-editar-btn {
+  background: none;
+  border: none;
+  color: var(--texto-tenue);
+  font-size: 12.5px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.repertorio-editar-btn:hover {
+  color: var(--texto);
+}
+
+.repertorio-eliminar-btn {
+  color: var(--rojo-marca);
+}

@@ -1,27 +1,33 @@
 /**
- * Favoritos y Repertorio, guardados en localStorage (igual que el sitio
- * original de referencia). No requieren cuenta ni backend — son locales
- * al navegador del usuario. Si más adelante quieres que se sincronicen
- * entre dispositivos, se puede migrar a tablas en Supabase con auth.
+ * Favoritos y Repertorios, guardados en localStorage. No requieren cuenta
+ * ni backend — son locales al navegador del usuario.
  */
 
 const CLAVE_FAVORITOS = 'cmp:favoritos';
-const CLAVE_REPERTORIO = 'cmp:repertorio';
+const CLAVE_REPERTORIOS = 'cmp:repertorios';
+const CLAVE_REPERTORIO_ACTIVO = 'cmp:repertorio-activo';
+const CLAVE_REPERTORIO_LEGADO = 'cmp:repertorio'; // versión anterior, un solo repertorio
 const EVENTO_CAMBIO = 'cmp:listas-cambiaron';
 
-function leer(clave: string): number[] {
+export interface Repertorio {
+  id: string;
+  nombre: string;
+  cancionIds: number[];
+  creado: string;
+}
+
+function leerJson<T>(clave: string, porDefecto: T): T {
   try {
     const raw = localStorage.getItem(clave);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    if (!raw) return porDefecto;
+    return JSON.parse(raw) as T;
   } catch {
-    return [];
+    return porDefecto;
   }
 }
 
-function escribir(clave: string, ids: number[]) {
-  localStorage.setItem(clave, JSON.stringify(ids));
+function escribirJson(clave: string, valor: unknown) {
+  localStorage.setItem(clave, JSON.stringify(valor));
   window.dispatchEvent(new CustomEvent(EVENTO_CAMBIO, { detail: { clave } }));
 }
 
@@ -35,10 +41,14 @@ export function suscribirCambiosListas(cb: () => void): () => void {
   };
 }
 
+function nuevoId(): string {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
 // --- Favoritos ---
 
 export function getFavoritos(): number[] {
-  return leer(CLAVE_FAVORITOS);
+  return leerJson<number[]>(CLAVE_FAVORITOS, []);
 }
 
 export function esFavorito(id: number): boolean {
@@ -47,45 +57,137 @@ export function esFavorito(id: number): boolean {
 
 export function toggleFavorito(id: number) {
   const actuales = getFavoritos();
-  const nuevo = actuales.includes(id)
-    ? actuales.filter((x) => x !== id)
-    : [...actuales, id];
-  escribir(CLAVE_FAVORITOS, nuevo);
+  const nuevo = actuales.includes(id) ? actuales.filter((x) => x !== id) : [...actuales, id];
+  escribirJson(CLAVE_FAVORITOS, nuevo);
 }
 
-// --- Repertorio (con orden) ---
+// --- Repertorios (varios, con nombre) ---
 
-export function getRepertorio(): number[] {
-  return leer(CLAVE_REPERTORIO);
+function migrarRepertorioLegadoSiExiste(): Repertorio[] {
+  const legado = leerJson<number[] | null>(CLAVE_REPERTORIO_LEGADO, null);
+  if (legado && legado.length > 0) {
+    const migrado: Repertorio = {
+      id: nuevoId(),
+      nombre: 'Mi repertorio',
+      cancionIds: legado,
+      creado: new Date().toISOString(),
+    };
+    localStorage.removeItem(CLAVE_REPERTORIO_LEGADO);
+    return [migrado];
+  }
+  return [];
 }
 
-export function estaEnRepertorio(id: number): boolean {
-  return getRepertorio().includes(id);
+export function getRepertorios(): Repertorio[] {
+  const existentes = leerJson<Repertorio[] | null>(CLAVE_REPERTORIOS, null);
+  if (existentes) return existentes;
+  const migrados = migrarRepertorioLegadoSiExiste();
+  if (migrados.length > 0) {
+    escribirJson(CLAVE_REPERTORIOS, migrados);
+    escribirJson(CLAVE_REPERTORIO_ACTIVO, migrados[0].id);
+  }
+  return migrados;
 }
 
-export function agregarARepertorio(id: number) {
-  const actuales = getRepertorio();
-  if (actuales.includes(id)) return;
-  escribir(CLAVE_REPERTORIO, [...actuales, id]);
+function guardarRepertorios(lista: Repertorio[]) {
+  escribirJson(CLAVE_REPERTORIOS, lista);
 }
 
-export function quitarDeRepertorio(id: number) {
-  escribir(
-    CLAVE_REPERTORIO,
-    getRepertorio().filter((x) => x !== id)
+export function getRepertorioActivoId(): string | null {
+  const id = leerJson<string | null>(CLAVE_REPERTORIO_ACTIVO, null);
+  const lista = getRepertorios();
+  if (id && lista.some((r) => r.id === id)) return id;
+  return lista[0]?.id ?? null;
+}
+
+export function setRepertorioActivo(id: string) {
+  escribirJson(CLAVE_REPERTORIO_ACTIVO, id);
+}
+
+/** Devuelve el repertorio activo, creando uno por defecto si no hay ninguno. */
+export function getOCrearRepertorioActivo(): Repertorio {
+  let lista = getRepertorios();
+  let activoId = getRepertorioActivoId();
+  if (!activoId || lista.length === 0) {
+    const nuevo: Repertorio = {
+      id: nuevoId(),
+      nombre: 'Mi repertorio',
+      cancionIds: [],
+      creado: new Date().toISOString(),
+    };
+    lista = [...lista, nuevo];
+    guardarRepertorios(lista);
+    setRepertorioActivo(nuevo.id);
+    return nuevo;
+  }
+  return lista.find((r) => r.id === activoId)!;
+}
+
+export function crearRepertorio(nombre: string): Repertorio {
+  const nuevo: Repertorio = {
+    id: nuevoId(),
+    nombre: nombre.trim() || 'Repertorio sin nombre',
+    cancionIds: [],
+    creado: new Date().toISOString(),
+  };
+  const lista = [...getRepertorios(), nuevo];
+  guardarRepertorios(lista);
+  setRepertorioActivo(nuevo.id);
+  return nuevo;
+}
+
+export function renombrarRepertorio(id: string, nombre: string) {
+  const lista = getRepertorios().map((r) =>
+    r.id === id ? { ...r, nombre: nombre.trim() || r.nombre } : r
+  );
+  guardarRepertorios(lista);
+}
+
+export function eliminarRepertorio(id: string) {
+  const lista = getRepertorios().filter((r) => r.id !== id);
+  guardarRepertorios(lista);
+  if (getRepertorioActivoId() === id) {
+    setRepertorioActivo(lista[0]?.id ?? '');
+  }
+}
+
+function actualizarRepertorio(id: string, fn: (r: Repertorio) => Repertorio) {
+  const lista = getRepertorios().map((r) => (r.id === id ? fn(r) : r));
+  guardarRepertorios(lista);
+}
+
+export function estaEnRepertorio(cancionId: number, repertorioId?: string): boolean {
+  const id = repertorioId ?? getOCrearRepertorioActivo().id;
+  const r = getRepertorios().find((x) => x.id === id);
+  return r ? r.cancionIds.includes(cancionId) : false;
+}
+
+export function agregarARepertorio(cancionId: number, repertorioId?: string) {
+  const id = repertorioId ?? getOCrearRepertorioActivo().id;
+  actualizarRepertorio(id, (r) =>
+    r.cancionIds.includes(cancionId) ? r : { ...r, cancionIds: [...r.cancionIds, cancionId] }
   );
 }
 
-export function moverEnRepertorio(id: number, direccion: -1 | 1) {
-  const actuales = getRepertorio();
-  const i = actuales.indexOf(id);
-  const j = i + direccion;
-  if (i === -1 || j < 0 || j >= actuales.length) return;
-  const copia = [...actuales];
-  [copia[i], copia[j]] = [copia[j], copia[i]];
-  escribir(CLAVE_REPERTORIO, copia);
+export function quitarDeRepertorio(cancionId: number, repertorioId?: string) {
+  const id = repertorioId ?? getOCrearRepertorioActivo().id;
+  actualizarRepertorio(id, (r) => ({
+    ...r,
+    cancionIds: r.cancionIds.filter((x) => x !== cancionId),
+  }));
 }
 
-export function limpiarRepertorio() {
-  escribir(CLAVE_REPERTORIO, []);
+export function moverEnRepertorio(repertorioId: string, cancionId: number, direccion: -1 | 1) {
+  actualizarRepertorio(repertorioId, (r) => {
+    const i = r.cancionIds.indexOf(cancionId);
+    const j = i + direccion;
+    if (i === -1 || j < 0 || j >= r.cancionIds.length) return r;
+    const copia = [...r.cancionIds];
+    [copia[i], copia[j]] = [copia[j], copia[i]];
+    return { ...r, cancionIds: copia };
+  });
+}
+
+export function limpiarRepertorio(repertorioId: string) {
+  actualizarRepertorio(repertorioId, (r) => ({ ...r, cancionIds: [] }));
 }

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CancionConCancionero } from '../types/cancionero';
 import { transponerBloque } from '../lib/transposer';
 import {
@@ -9,6 +9,7 @@ import {
   quitarDeRepertorio,
 } from '../lib/listasLocales';
 import { useFavoritosIds, useRepertorioIds } from '../hooks/useListasLocales';
+import { getPreferenciasVisor, guardarPreferenciasVisor, PASOS_TAMANO } from '../lib/preferenciasVisor';
 import { IconEstrella, IconMas } from './Icons';
 import './SongViewer.css';
 
@@ -24,6 +25,45 @@ export function SongViewer({ cancion }: Props) {
   const repertorio = useRepertorioIds();
   const favorito = favoritos.includes(cancion.id);
   const enRepertorio = repertorio.includes(cancion.id);
+
+  const [prefs, setPrefs] = useState(() => getPreferenciasVisor());
+  const [autoScroll, setAutoScroll] = useState(false);
+  const [velocidad, setVelocidad] = useState(1); // 0.5 a 3
+  const scrollFrame = useRef<number | null>(null);
+
+  function actualizarPrefs(next: Partial<typeof prefs>) {
+    const nuevo = { ...prefs, ...next };
+    setPrefs(nuevo);
+    guardarPreferenciasVisor(nuevo);
+  }
+
+  function cambiarTamano(direccion: 1 | -1) {
+    const i = PASOS_TAMANO.indexOf(prefs.tamanoLetra);
+    const nuevoI = Math.min(PASOS_TAMANO.length - 1, Math.max(0, i + direccion));
+    actualizarPrefs({ tamanoLetra: PASOS_TAMANO[nuevoI] });
+  }
+
+  useEffect(() => {
+    if (!autoScroll) {
+      if (scrollFrame.current) cancelAnimationFrame(scrollFrame.current);
+      return;
+    }
+    let ultimo = performance.now();
+    function paso(ahora: number) {
+      const dt = ahora - ultimo;
+      ultimo = ahora;
+      window.scrollBy(0, (dt / 1000) * 18 * velocidad);
+      if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) {
+        setAutoScroll(false);
+        return;
+      }
+      scrollFrame.current = requestAnimationFrame(paso);
+    }
+    scrollFrame.current = requestAnimationFrame(paso);
+    return () => {
+      if (scrollFrame.current) cancelAnimationFrame(scrollFrame.current);
+    };
+  }, [autoScroll, velocidad]);
 
   const tieneLetra =
     (cancion.formato === 'linea' || cancion.formato === 'estrofa' || cancion.formato === 'partitura') &&
@@ -45,7 +85,7 @@ export function SongViewer({ cancion }: Props) {
   const sinContenidoEstructurado = !tieneLetra && !tienePartitura;
 
   return (
-    <article className="visor">
+    <article className={`visor${prefs.modoOscuro ? ' visor-oscuro' : ''}`} style={{ '--tamano-letra': prefs.tamanoLetra } as React.CSSProperties}>
       <header className="visor-header">
         <div className="visor-header-top">
           {cancion.numero_original != null && (
@@ -101,30 +141,81 @@ export function SongViewer({ cancion }: Props) {
 
       {vista === 'letra' && tieneLetra && (
         <>
-          <div className="transportador">
-            <button
-              className="transportador-btn"
-              onClick={() => setSemitonos((s) => s - 1)}
-              aria-label="Bajar medio tono"
-            >
-              −
-            </button>
-            <span className="transportador-label">
-              Tono {semitonos > 0 ? `+${semitonos}` : semitonos}
-            </span>
-            <button
-              className="transportador-btn"
-              onClick={() => setSemitonos((s) => s + 1)}
-              aria-label="Subir medio tono"
-            >
-              +
-            </button>
-            {semitonos !== 0 && (
-              <button className="transportador-reset" onClick={() => setSemitonos(0)}>
-                original
+          <div className="visor-controles">
+            <div className="transportador">
+              <button
+                className="transportador-btn"
+                onClick={() => setSemitonos((s) => s - 1)}
+                aria-label="Bajar medio tono"
+              >
+                −
               </button>
-            )}
+              <span className="transportador-label">
+                Tono {semitonos > 0 ? `+${semitonos}` : semitonos}
+              </span>
+              <button
+                className="transportador-btn"
+                onClick={() => setSemitonos((s) => s + 1)}
+                aria-label="Subir medio tono"
+              >
+                +
+              </button>
+              {semitonos !== 0 && (
+                <button className="transportador-reset" onClick={() => setSemitonos(0)}>
+                  original
+                </button>
+              )}
+            </div>
+
+            <div className="visor-ajustes">
+              <button
+                className="ajuste-btn"
+                onClick={() => cambiarTamano(-1)}
+                aria-label="Letra más chica"
+                disabled={prefs.tamanoLetra === PASOS_TAMANO[0]}
+              >
+                A−
+              </button>
+              <button
+                className="ajuste-btn"
+                onClick={() => cambiarTamano(1)}
+                aria-label="Letra más grande"
+                disabled={prefs.tamanoLetra === PASOS_TAMANO[PASOS_TAMANO.length - 1]}
+              >
+                A+
+              </button>
+              <button
+                className={`ajuste-btn${prefs.modoOscuro ? ' activo' : ''}`}
+                onClick={() => actualizarPrefs({ modoOscuro: !prefs.modoOscuro })}
+                aria-label="Modo oscuro"
+                title="Modo oscuro"
+              >
+                ◐
+              </button>
+              <button
+                className={`ajuste-btn${autoScroll ? ' activo' : ''}`}
+                onClick={() => setAutoScroll((a) => !a)}
+                aria-label={autoScroll ? 'Detener auto-scroll' : 'Iniciar auto-scroll'}
+                title={autoScroll ? 'Detener auto-scroll' : 'Auto-scroll'}
+              >
+                {autoScroll ? '⏸' : '▶'}
+              </button>
+            </div>
           </div>
+
+          {autoScroll && (
+            <div className="autoscroll-velocidad">
+              <span>Velocidad</span>
+              <input
+                type="range"
+                min={0.5}
+                max={3}
+                step={0.25}
+                value={velocidad}
+                onChange={(e) => setVelocidad(Number(e.target.value))}
+              />
+            </div>
+          )}
 
           {cancion.formato === 'estrofa' && (
             <p className="visor-aviso">Acordes por línea (no siempre alineados por sílaba exacta)</p>
