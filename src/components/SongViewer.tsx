@@ -28,7 +28,9 @@ export function SongViewer({ cancion }: Props) {
 
   const [prefs, setPrefs] = useState(() => getPreferenciasVisor());
   const [autoScroll, setAutoScroll] = useState(false);
-  const [velocidad, setVelocidad] = useState(1); // 0.5 a 3
+  const [velocidad, setVelocidad] = useState(4); // 1 (lento) a 10 (rápido)
+  const velocidadRef = useRef(velocidad);
+  velocidadRef.current = velocidad;
   const scrollFrame = useRef<number | null>(null);
 
   function actualizarPrefs(next: Partial<typeof prefs>) {
@@ -52,7 +54,10 @@ export function SongViewer({ cancion }: Props) {
     function paso(ahora: number) {
       const dt = ahora - ultimo;
       ultimo = ahora;
-      window.scrollBy(0, (dt / 1000) * 18 * velocidad);
+      // 1 = ~8px/s (muy lento), 10 = ~80px/s (rápido) — lee la velocidad
+      // actual desde el ref en cada cuadro, sin reiniciar el ciclo cuando
+      // se mueve el control mientras ya está corriendo
+      window.scrollBy(0, (dt / 1000) * 8 * velocidadRef.current);
       if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) {
         setAutoScroll(false);
         return;
@@ -63,7 +68,7 @@ export function SongViewer({ cancion }: Props) {
     return () => {
       if (scrollFrame.current) cancelAnimationFrame(scrollFrame.current);
     };
-  }, [autoScroll, velocidad]);
+  }, [autoScroll]);
 
   const tieneLetra =
     (cancion.formato === 'linea' || cancion.formato === 'estrofa' || cancion.formato === 'partitura') &&
@@ -208,12 +213,13 @@ export function SongViewer({ cancion }: Props) {
               <span>Velocidad</span>
               <input
                 type="range"
-                min={0.5}
-                max={3}
-                step={0.25}
+                min={1}
+                max={10}
+                step={1}
                 value={velocidad}
                 onChange={(e) => setVelocidad(Number(e.target.value))}
               />
+              <span className="autoscroll-velocidad-valor">{velocidad}</span>
             </div>
           )}
 
