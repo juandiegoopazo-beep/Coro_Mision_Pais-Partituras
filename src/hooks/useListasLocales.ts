@@ -5,8 +5,10 @@ import {
   getRepertorios,
   getRepertorioActivoId,
   getOCrearRepertorioActivo,
+  getSlots,
   suscribirCambiosListas,
   type Repertorio,
+  type SlotRepertorio,
 } from '../lib/listasLocales';
 
 export function useFavoritosIds(): number[] {
@@ -37,6 +39,19 @@ export function useRepertorioIds(): number[] {
     []
   );
   return ids;
+}
+
+/** Slots por parte de misa del repertorio dado, reactivo a cambios. */
+export function useSlotsRepertorio(repertorioId: string | null): Record<string, SlotRepertorio> {
+  const [slots, setSlots] = useState<Record<string, SlotRepertorio>>(() =>
+    repertorioId ? getSlots(repertorioId) : {}
+  );
+  useEffect(() => {
+    if (!repertorioId) return;
+    setSlots(getSlots(repertorioId));
+    return suscribirCambiosListas(() => setSlots(getSlots(repertorioId)));
+  }, [repertorioId]);
+  return slots;
 }
 
 export interface CancionListado {

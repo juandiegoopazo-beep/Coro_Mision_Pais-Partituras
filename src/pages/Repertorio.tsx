@@ -2,17 +2,21 @@ import { useState } from 'react';
 import {
   useRepertorios,
   useRepertorioActivoId,
+  useSlotsRepertorio,
   useCancionesPorIds,
 } from '../hooks/useListasLocales';
 import {
-  moverEnRepertorio,
-  quitarDeRepertorio,
-  limpiarRepertorio,
   crearRepertorio,
   renombrarRepertorio,
   eliminarRepertorio,
   setRepertorioActivo,
+  limpiarTodosLosSlots,
+  aplicarSorteo,
+  idsDesdeSlots,
+  PARTES_MISA,
 } from '../lib/listasLocales';
+import { elegirAlAzarEnMomento } from '../lib/repertorioAzar';
+import { SlotRepertorioItem } from '../components/SlotRepertorio';
 import { CompartirModal } from '../components/CompartirModal';
 import './Listas.css';
 import './Repertorio.css';
@@ -21,13 +25,18 @@ export default function Repertorio() {
   const repertorios = useRepertorios();
   const activoId = useRepertorioActivoId();
   const activo = repertorios.find((r) => r.id === activoId) ?? null;
-  const { canciones, loading } = useCancionesPorIds(activo?.cancionIds ?? []);
+  const slots = useSlotsRepertorio(activoId);
+
+  const idsElegidos = idsDesdeSlots(slots);
+  const { canciones } = useCancionesPorIds(idsElegidos);
+  const cancionPorId = new Map(canciones.map((c) => [c.id, c]));
 
   const [mostrarCompartir, setMostrarCompartir] = useState(false);
   const [creandoNuevo, setCreandoNuevo] = useState(false);
   const [nombreNuevo, setNombreNuevo] = useState('');
   const [editandoNombre, setEditandoNombre] = useState(false);
   const [nombreEdicion, setNombreEdicion] = useState('');
+  const [generando, setGenerando] = useState(false);
 
   function confirmarNuevo() {
     if (nombreNuevo.trim()) crearRepertorio(nombreNuevo);
@@ -40,11 +49,32 @@ export default function Repertorio() {
     setEditandoNombre(false);
   }
 
+  async function generarAlAzar() {
+    if (!activo) return;
+    setGenerando(true);
+    const usados = idsDesdeSlots(slots);
+    const resultado: Record<string, number | null> = {};
+    for (const parte of PARTES_MISA) {
+      const yaFijada = slots[parte.momento]?.fijada;
+      if (yaFijada) continue;
+      const id = await elegirAlAzarEnMomento(parte.momento, usados);
+      resultado[parte.momento] = id;
+      if (id != null) usados.push(id);
+    }
+    aplicarSorteo(activo.id, resultado);
+    setGenerando(false);
+  }
+
   return (
     <div className="lista-pagina">
       <header className="lista-header">
         <p className="lista-eyebrow">Misión País</p>
-        <h1 className="lista-titulo">Repertorio</h1>
+        <h1 className="lista-titulo">Repertorio de misa</h1>
+        <p className="repertorio-explicacion">
+          Arma el repertorio parte por parte. Elige cada canción con el buscador o genera al
+          azar. Fija 🔒 las que quieras dejar definitivas y vuelve a generar para rellenar el
+          resto. Al final, si quieres, guárdalo como una lista.
+        </p>
       </header>
 
       {repertorios.length > 0 && (
@@ -55,12 +85,12 @@ export default function Repertorio() {
               className={`repertorio-chip${r.id === activoId ? ' activo' : ''}`}
               onClick={() => setRepertorioActivo(r.id)}
             >
-              {r.nombre} <span className="repertorio-chip-num">{r.cancionIds.length}</span>
+              {r.nombre}
             </button>
           ))}
           {!creandoNuevo && (
             <button className="repertorio-chip repertorio-chip-nuevo" onClick={() => setCreandoNuevo(true)}>
-              + Nuevo
+              + Nueva lista
             </button>
           )}
         </div>
@@ -71,7 +101,7 @@ export default function Repertorio() {
           <input
             autoFocus
             className="repertorio-nuevo-input"
-            placeholder="Nombre del repertorio (ej. Misa domingo)"
+            placeholder="Nombre (ej. Misa domingo, ensayo miércoles)"
             value={nombreNuevo}
             onChange={(e) => setNombreNuevo(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && confirmarNuevo()}
@@ -97,14 +127,16 @@ export default function Repertorio() {
           >
             Renombrar
           </button>
-          <button
-            className="repertorio-editar-btn repertorio-eliminar-btn"
-            onClick={() => {
-              if (confirm(`¿Eliminar "${activo.nombre}"?`)) eliminarRepertorio(activo.id);
-            }}
-          >
-            Eliminar
-          </button>
+          {repertorios.length > 1 && (
+            <button
+              className="repertorio-editar-btn repertorio-eliminar-btn"
+              onClick={() => {
+                if (confirm(`¿Eliminar "${activo.nombre}"?`)) eliminarRepertorio(activo.id);
+              }}
+            >
+              Eliminar
+            </button>
+          )}
         </div>
       )}
 
@@ -126,71 +158,38 @@ export default function Repertorio() {
         </div>
       )}
 
-      {loading && <p className="lista-estado">Cargando…</p>}
-
-      {!loading && activo && canciones.length === 0 && (
-        <div className="lista-vacio">
-          <p className="lista-vacio-titulo">Este repertorio está vacío</p>
-          <p className="lista-vacio-texto">
-            Toca el + junto a una canción para agregarla acá, en el orden que quieras.
-          </p>
-        </div>
-      )}
-
-      {!loading && activo && canciones.length > 0 && (
-        <div className="lista-acciones-top">
-          <button className="lista-btn-secundario" onClick={() => limpiarRepertorio(activo.id)}>
-            Vaciar
-          </button>
-          <button className="lista-btn-primario" onClick={() => setMostrarCompartir(true)}>
-            Compartir
-          </button>
-        </div>
-      )}
-
-      <ul className="lista-items">
-        {canciones.map((c, i) => (
-          <li key={c.id} className="repertorio-item">
-            <span className="repertorio-numero">{i + 1}</span>
-            <div className="repertorio-orden">
-              <button
-                onClick={() => activo && moverEnRepertorio(activo.id, c.id, -1)}
-                disabled={i === 0}
-                aria-label="Mover arriba"
-              >
-                ▲
-              </button>
-              <button
-                onClick={() => activo && moverEnRepertorio(activo.id, c.id, 1)}
-                disabled={i === canciones.length - 1}
-                aria-label="Mover abajo"
-              >
-                ▼
-              </button>
-            </div>
-            <a
-              className="tarjeta-cancion-principal"
-              href={`/cancion/${c.id}`}
-              style={{ flex: 1, textDecoration: 'none' }}
-            >
-              <span className="tarjeta-cancion-info">
-                <span className="tarjeta-cancion-titulo">{c.titulo}</span>
-                {c.cancionero?.titulo && (
-                  <span className="tarjeta-cancion-sub">{c.cancionero.titulo}</span>
-                )}
-              </span>
-            </a>
-            <button
-              className="accion-btn"
-              onClick={() => activo && quitarDeRepertorio(c.id, activo.id)}
-              aria-label="Quitar del repertorio"
-              title="Quitar del repertorio"
-            >
-              ✕
+      {activo && (
+        <>
+          <div className="lista-acciones-top">
+            <button className="lista-btn-secundario" onClick={() => limpiarTodosLosSlots(activo.id)}>
+              Limpiar todo
             </button>
-          </li>
-        ))}
-      </ul>
+            <button className="lista-btn-secundario" onClick={generarAlAzar} disabled={generando}>
+              {generando ? 'Generando…' : '🎲 Generar al azar'}
+            </button>
+            {idsElegidos.length > 0 && (
+              <button className="lista-btn-primario" onClick={() => setMostrarCompartir(true)}>
+                Compartir
+              </button>
+            )}
+          </div>
+
+          {PARTES_MISA.map((parte) => {
+            const slot = slots[parte.momento] ?? { cancionId: null, fijada: false };
+            return (
+              <SlotRepertorioItem
+                key={parte.momento}
+                repertorioId={activo.id}
+                momento={parte.momento}
+                etiqueta={parte.etiqueta}
+                slot={slot}
+                cancion={slot.cancionId != null ? cancionPorId.get(slot.cancionId) ?? null : null}
+                idsYaUsados={idsElegidos}
+              />
+            );
+          })}
+        </>
+      )}
 
       {mostrarCompartir && activo && (
         <CompartirModal canciones={canciones} onCerrar={() => setMostrarCompartir(false)} />

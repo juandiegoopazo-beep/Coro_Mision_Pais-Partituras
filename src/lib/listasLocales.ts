@@ -13,7 +13,33 @@ export interface Repertorio {
   id: string;
   nombre: string;
   cancionIds: number[];
+  slots?: Record<string, SlotRepertorio>;
   creado: string;
+}
+
+export interface SlotRepertorio {
+  cancionId: number | null;
+  fijada: boolean;
+}
+
+/** Partes de la misa, en orden, y su momento_liturgico correspondiente. */
+export const PARTES_MISA: { momento: string; etiqueta: string }[] = [
+  { momento: 'Entrada', etiqueta: 'Entrada' },
+  { momento: 'Perdón', etiqueta: 'Acto penitencial' },
+  { momento: 'Gloria', etiqueta: 'Gloria' },
+  { momento: 'Salmo', etiqueta: 'Salmo' },
+  { momento: 'Aleluya', etiqueta: 'Aclamación / Aleluya' },
+  { momento: 'Ofertorio', etiqueta: 'Ofertorio' },
+  { momento: 'Santo', etiqueta: 'Santo' },
+  { momento: 'Cordero', etiqueta: 'Cordero / Paz' },
+  { momento: 'Comunión', etiqueta: 'Comunión' },
+  { momento: 'Salida / María', etiqueta: 'Salida' },
+];
+
+function slotsVacios(): Record<string, SlotRepertorio> {
+  const s: Record<string, SlotRepertorio> = {};
+  for (const p of PARTES_MISA) s[p.momento] = { cancionId: null, fijada: false };
+  return s;
 }
 
 function leerJson<T>(clave: string, porDefecto: T): T {
@@ -190,4 +216,64 @@ export function moverEnRepertorio(repertorioId: string, cancionId: number, direc
 
 export function limpiarRepertorio(repertorioId: string) {
   actualizarRepertorio(repertorioId, (r) => ({ ...r, cancionIds: [] }));
+}
+
+// --- Repertorio por partes de la misa ---
+
+export function getSlots(repertorioId: string): Record<string, SlotRepertorio> {
+  const r = getRepertorios().find((x) => x.id === repertorioId);
+  return r?.slots ?? slotsVacios();
+}
+
+function actualizarSlot(
+  repertorioId: string,
+  momento: string,
+  cambio: Partial<SlotRepertorio>
+) {
+  actualizarRepertorio(repertorioId, (r) => {
+    const slots = { ...(r.slots ?? slotsVacios()) };
+    slots[momento] = { ...(slots[momento] ?? { cancionId: null, fijada: false }), ...cambio };
+    return { ...r, slots };
+  });
+}
+
+/** Elige una canción específica para una parte (queda sin fijar). */
+export function elegirEnSlot(repertorioId: string, momento: string, cancionId: number) {
+  actualizarSlot(repertorioId, momento, { cancionId, fijada: false });
+}
+
+/** Fija (o desfija) lo que esté actualmente en esa parte, incluida una parte vacía. */
+export function toggleFijarSlot(repertorioId: string, momento: string) {
+  const slots = getSlots(repertorioId);
+  const actual = slots[momento] ?? { cancionId: null, fijada: false };
+  actualizarSlot(repertorioId, momento, { fijada: !actual.fijada });
+}
+
+/** Vacía una parte y la deja fijada así (para partes que no corresponden, ej. Gloria en día de semana). */
+export function vaciarSlot(repertorioId: string, momento: string) {
+  actualizarSlot(repertorioId, momento, { cancionId: null, fijada: true });
+}
+
+/** Vuelve a dejar todas las partes en blanco y sin fijar. */
+export function limpiarTodosLosSlots(repertorioId: string) {
+  actualizarRepertorio(repertorioId, (r) => ({ ...r, slots: slotsVacios() }));
+}
+
+/** Aplica un mapa completo de resultados de sorteo, respetando lo ya fijado. */
+export function aplicarSorteo(repertorioId: string, resultado: Record<string, number | null>) {
+  actualizarRepertorio(repertorioId, (r) => {
+    const slots = { ...(r.slots ?? slotsVacios()) };
+    for (const [momento, cancionId] of Object.entries(resultado)) {
+      const actual = slots[momento] ?? { cancionId: null, fijada: false };
+      if (actual.fijada) continue; // no toca lo fijado
+      slots[momento] = { cancionId, fijada: false };
+    }
+    return { ...r, slots };
+  });
+}
+
+/** Devuelve los ids de canción elegidos en las partes, en el orden de la misa. */
+export function idsDesdeSlots(slots: Record<string, SlotRepertorio>): number[] {
+  return PARTES_MISA.map((p) => slots[p.momento]?.cancionId)
+    .filter((id): id is number => id != null);
 }

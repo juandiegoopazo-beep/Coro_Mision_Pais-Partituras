@@ -1,0 +1,94 @@
+.slot-parte {
+  background: var(--tarjeta);
+  border: 1px solid var(--tarjeta-borde);
+  border-radius: var(--radio-l);
+  box-shadow: var(--sombra-carta);
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.slot-fijada {
+  border-color: var(--negro);
+}
+
+.slot-parte-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.slot-parte-titulo {
+  font-family: var(--fuente-titulo);
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.slot-parte-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.slot-btn {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--tarjeta-borde);
+  background: var(--fondo);
+  color: var(--texto);
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease;
+}
+
+.slot-btn:hover:not(:disabled) {
+  border-color: var(--negro);
+}
+
+.slot-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.slot-btn-fijada {
+  background: var(--negro);
+  color: #fff;
+  border-color: var(--negro);
+}
+
+.slot-btn-vaciar {
+  color: var(--rojo-marca);
+}
+
+.slot-parte-contenido {
+  min-height: 20px;
+}
+
+.slot-sin-elegir {
+  color: var(--texto-suave);
+  font-size: 13.5px;
+  font-style: italic;
+  margin: 0;
+}
+
+.slot-cancion-elegida {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+}
+
+.slot-cancion-titulo {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--texto);
+}
+
+.slot-cancion-sub {
+  font-size: 12px;
+  color: var(--texto-tenue);
+  margin-top: 2px;
+}
