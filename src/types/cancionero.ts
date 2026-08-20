@@ -39,6 +39,8 @@ export interface Cancion {
   partitura_fuente: string | null;
 }
 
+export type CancionRow = Cancion;
+
 export interface PartituraArchivo {
   id: number;
   voz: string;

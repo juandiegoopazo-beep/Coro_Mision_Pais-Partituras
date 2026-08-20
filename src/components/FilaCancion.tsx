@@ -63,3 +63,6 @@ export function FilaCancion({ id, titulo, subtitulo, etiqueta, onCambio }: Props
     </div>
   );
 }
+
+export default FilaCancion;
+

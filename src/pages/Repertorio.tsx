@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import {
   useRepertorios,
   useRepertorioActivoId,
   useSlotsRepertorio,
   useCancionesPorIds,
+  type CancionListado,
 } from '../hooks/useListasLocales';
 import {
   crearRepertorio,
@@ -14,8 +15,9 @@ import {
   aplicarSorteo,
   idsDesdeSlots,
   PARTES_MISA,
+  type RepertorioItem,
 } from '../lib/listasLocales';
-import { elegirAlAzarEnMomento } from '../lib/repertorioAzar';
+import { elegirAlAzarEnMomento, type CancionParaElegir } from '../lib/repertorioAzar';
 import { SlotRepertorioItem } from '../components/SlotRepertorio';
 import { CompartirModal } from '../components/CompartirModal';
 import './Listas.css';
@@ -24,12 +26,21 @@ import './Repertorio.css';
 export default function Repertorio() {
   const repertorios = useRepertorios();
   const activoId = useRepertorioActivoId();
-  const activo = repertorios.find((r) => r.id === activoId) ?? null;
+  const activo = repertorios.find((r: RepertorioItem) => r.id === activoId) ?? null;
   const slots = useSlotsRepertorio(activoId);
 
   const idsElegidos = idsDesdeSlots(slots);
   const { canciones } = useCancionesPorIds(idsElegidos);
-  const cancionPorId = new Map(canciones.map((c) => [c.id, c]));
+  const cancionPorId = new Map<number, CancionParaElegir>(
+    canciones.map((c: CancionListado) => [
+      c.id,
+      {
+        id: c.id,
+        titulo: c.titulo,
+        cancionero: c.cancionero,
+      },
+    ])
+  );
 
   const [mostrarCompartir, setMostrarCompartir] = useState(false);
   const [creandoNuevo, setCreandoNuevo] = useState(false);
@@ -79,7 +90,7 @@ export default function Repertorio() {
 
       {repertorios.length > 0 && (
         <div className="repertorio-selector">
-          {repertorios.map((r) => (
+          {repertorios.map((r: RepertorioItem) => (
             <button
               key={r.id}
               className={`repertorio-chip${r.id === activoId ? ' activo' : ''}`}
@@ -103,8 +114,8 @@ export default function Repertorio() {
             className="repertorio-nuevo-input"
             placeholder="Nombre (ej. Misa domingo, ensayo miércoles)"
             value={nombreNuevo}
-            onChange={(e) => setNombreNuevo(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && confirmarNuevo()}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNombreNuevo(e.target.value)}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === 'Enter' && confirmarNuevo()}
           />
           <button className="lista-btn-primario" onClick={confirmarNuevo}>
             Crear
@@ -146,8 +157,8 @@ export default function Repertorio() {
             autoFocus
             className="repertorio-nuevo-input"
             value={nombreEdicion}
-            onChange={(e) => setNombreEdicion(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && confirmarRenombre()}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNombreEdicion(e.target.value)}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === 'Enter' && confirmarRenombre()}
           />
           <button className="lista-btn-primario" onClick={confirmarRenombre}>
             Guardar
@@ -174,7 +185,7 @@ export default function Repertorio() {
             )}
           </div>
 
-          {PARTES_MISA.map((parte) => {
+          {PARTES_MISA.map((parte: { momento: string; etiqueta: string }) => {
             const slot = slots[parte.momento] ?? { cancionId: null, fijada: false };
             return (
               <SlotRepertorioItem
