@@ -1,0 +1,60 @@
+/* src/components/VisorControles.css */
+.visor-controles-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--verde-carta);
+  border: 1px solid var(--tarjeta-borde);
+  border-radius: var(--radio-m);
+  padding: 14px;
+  margin-top: 10px;
+}
+
+.visor-controles-fila {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.visor-controles-label {
+  font-size: 13.5px;
+  color: var(--pergamino-tenue);
+}
+
+.visor-controles-grupo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.visor-controles-switch {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--tarjeta-borde);
+  border-radius: 999px;
+  color: var(--pergamino-tenue);
+  cursor: pointer;
+  font-size: 12.5px;
+}
+
+.visor-controles-switch.activo {
+  background: var(--oro);
+  color: var(--verde-tapa);
+  border-color: var(--oro);
+}
+
+.visor-controles-play {
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--tarjeta-borde);
+  background: var(--verde-carta);
+  color: var(--pergamino);
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.visor-controles-play.activo {
+  background: var(--oro);
+  color: var(--verde-tapa);
+}

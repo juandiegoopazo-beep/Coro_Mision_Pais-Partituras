@@ -1,10 +1,8 @@
-// src/components/BottomNav.tsx
-import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { IconSearch, IconHeart, IconList } from './Icons';
 import './BottomNav.css';
 
-export default function BottomNav() {
+export function BottomNav() {
   return (
     <nav className="bottom-nav">
       <NavLink 
@@ -21,7 +19,7 @@ export default function BottomNav() {
         className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
       >
         <IconHeart className="nav-icon" />
-        <span>Listas</span> {/* Cambiado de Favoritos a Listas */}
+        <span>Listas</span>
       </NavLink>
 
       <NavLink 
@@ -34,3 +32,5 @@ export default function BottomNav() {
     </nav>
   );
 }
+
+export default BottomNav;
