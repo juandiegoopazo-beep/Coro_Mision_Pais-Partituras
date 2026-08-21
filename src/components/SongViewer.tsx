@@ -10,7 +10,8 @@ import {
 } from '../lib/listasLocales';
 import { useFavoritosIds, useRepertorioIds } from '../hooks/useListasLocales';
 import { getPreferenciasVisor, guardarPreferenciasVisor, PASOS_TAMANO } from '../lib/preferenciasVisor';
-import { IconEstrella, IconMas } from './Icons';
+import { IconEstrella, IconMas, IconLista } from './Icons';
+import { ListaPickerModal } from './ListaPickerModal';
 import './SongViewer.css';
 
 interface Props {
@@ -77,6 +78,7 @@ export function SongViewer({ cancion }: Props) {
   const tienePartitura = (cancion.partitura_archivos?.length ?? 0) > 0;
 
   const [vista, setVista] = useState<Vista>(tienePartitura && !tieneLetra ? 'partitura' : 'letra');
+  const [mostrarListas, setMostrarListas] = useState(false);
 
   const secciones = useMemo(() => {
     if (!cancion.secciones) return [];
@@ -114,6 +116,14 @@ export function SongViewer({ cancion }: Props) {
               title={enRepertorio ? 'Quitar del repertorio' : 'Agregar al repertorio'}
             >
               <IconMas activo={enRepertorio} />
+            </button>
+            <button
+              className="accion-btn"
+              onClick={() => setMostrarListas(true)}
+              aria-label="Agregar a lista"
+              title="Agregar a lista"
+            >
+              <IconLista />
             </button>
           </div>
         </div>
@@ -242,6 +252,10 @@ export function SongViewer({ cancion }: Props) {
       )}
 
       {sinContenidoEstructurado && <PdfFallback cancion={cancion} />}
+
+      {mostrarListas && (
+        <ListaPickerModal cancionId={cancion.id} onCerrar={() => setMostrarListas(false)} />
+      )}
     </article>
   );
 }

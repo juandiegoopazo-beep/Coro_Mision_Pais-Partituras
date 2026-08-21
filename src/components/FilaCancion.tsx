@@ -15,9 +15,10 @@ interface Props {
   subtitulo?: string | null;
   etiqueta?: string | null;
   onCambio?: () => void;
+  accionExtra?: { texto: string; etiqueta: string; onClick: () => void };
 }
 
-export function FilaCancion({ id, titulo, subtitulo, etiqueta, onCambio }: Props) {
+export function FilaCancion({ id, titulo, subtitulo, etiqueta, onCambio, accionExtra }: Props) {
   const navigate = useNavigate();
   const favorito = esFavorito(id);
   const enRepertorio = estaEnRepertorio(id);
@@ -59,6 +60,16 @@ export function FilaCancion({ id, titulo, subtitulo, etiqueta, onCambio }: Props
         >
           <IconMas activo={enRepertorio} />
         </button>
+        {accionExtra && (
+          <button
+            className="accion-btn"
+            onClick={accionExtra.onClick}
+            aria-label={accionExtra.etiqueta}
+            title={accionExtra.etiqueta}
+          >
+            {accionExtra.texto}
+          </button>
+        )}
       </div>
     </div>
   );
